@@ -10,11 +10,14 @@ import com.userservice.UserService.services.UserService;
 import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PutMapping;
+
+
 
 
 @RestController
@@ -37,8 +40,29 @@ public class UserController {
         }catch(UserNotFound ex) {
             return new ResponseEntity<String>(ex.getMessage(),HttpStatus.NOT_FOUND);
         }
+    }
+    
+    @PostMapping("/save")
+    public ResponseEntity<?> postMethodName(@RequestBody User user) {
+        try {
+            User savedUser = userService.saveUser(user);
+            return new ResponseEntity<User>(savedUser,HttpStatus.CREATED);    
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.CONFLICT);
+        }
         
     }
     
+    @PutMapping("update/{email}")
+    public ResponseEntity<?> putMethodName(@PathVariable String email, @RequestBody User user) {
+        User updatedUser = null;
+        user.setEmail(email);
+        try {
+            updatedUser = userService.updateUser(user);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(updatedUser,HttpStatus.OK);
+    }
     
 }
