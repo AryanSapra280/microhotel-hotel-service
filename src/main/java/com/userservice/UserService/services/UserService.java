@@ -1,12 +1,13 @@
 package com.userservice.UserService.services;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.userservice.UserService.entities.User;
+import com.userservice.UserService.exceptions.customException.DuplicateEmail;
 import com.userservice.UserService.exceptions.customException.UserNotFound;
 import com.userservice.UserService.repositories.IUserRepositories;
 
@@ -37,8 +38,34 @@ public class UserService implements IUserService {
 
     @Override
     public User saveUser(User user) {
-        User savedUser = userRepositories.save(user);
+        String userId = UUID.randomUUID().toString();
+        user.setUser_id(userId);
+        User savedUser = null;
+        try {
+            savedUser = userRepositories.save(user);
+        }catch(Exception exception) {
+            throw new DuplicateEmail("This email is already registered");
+        }
         return savedUser;
     }
     
+    @Override
+    public User updateUser(User user) {
+        if(user.getEmail() == null) {
+            throw new RuntimeException("Please provide a registered email");
+        }
+        User foundUser = userRepositories.findByEmail(user.getEmail()).
+        orElseThrow(()->new UserNotFound("user doesn't exist with this email"));
+        updateDetails(foundUser,user);
+        return userRepositories.save(foundUser);
+    }
+    private void updateDetails(User foundUser, User user) {
+        if(user.getAbout()!=null) {
+            foundUser.setAbout(user.getAbout());
+        }
+        if(user.getName()!=null) {
+            foundUser.setName(user.getName());
+        }
+    }
+
 }
