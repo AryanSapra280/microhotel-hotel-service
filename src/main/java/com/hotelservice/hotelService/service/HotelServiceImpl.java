@@ -32,7 +32,12 @@ public class HotelServiceImpl implements IHotelService {
     public Hotel saveHotel(Hotel hotel) {
         String hotel_id = UUID.randomUUID().toString();
         hotel.setHotel_id(hotel_id);
-        return hotelRepository.save(hotel);                
+        try{
+            return hotelRepository.save(hotel);                
+        }catch(RuntimeException ex) {
+            throw new HotelAlreadyExisit("hotel already exist with this name in this location");
+        }
+        
     }
 
     @Override
