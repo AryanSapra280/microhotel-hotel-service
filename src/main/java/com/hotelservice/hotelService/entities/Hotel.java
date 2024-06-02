@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "hotels")
+@Table(name = "hotels", uniqueConstraints = {@UniqueConstraint(columnNames = {"name", "location"})})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,7 +19,6 @@ import lombok.Setter;
 public class Hotel {
     @Id
     private String hotel_id;
-    @Column(unique = true)
     private String name;
     private String about;
     private String location;
